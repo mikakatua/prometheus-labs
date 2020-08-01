@@ -1,0 +1,50 @@
+version: "3.8"
+services:
+  prometheus:
+    image: prom/prometheus:v2.20.0
+    container_name: prometheus
+    network_mode: "host"
+    ports:
+    - "9090:9090"
+    volumes:
+    - "./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml"
+    - "./prometheus/first_rules.yml:/etc/prometheus/first_rules.yml"
+    - "prometheus-data:/prometheus"
+
+  alertmanager:
+    image: prom/alertmanager:v0.21.0
+    container_name: alertmanager
+    network_mode: "host"
+    ports:
+    - "9093:9093"
+    volumes:
+    - "./prometheus/alertmanager.yml:/etc/alertmanager/alertmanager.yml"
+    - "alertmanager-data:/alertmanager"
+
+  grafana:
+    image: grafana/grafana:7.1.1
+    container_name: grafana
+    network_mode: "host"
+    ports:
+    - "3000:3000"
+    volumes:
+    - "./grafana/example-dashboards:/var/lib/grafana/dashboards"
+    - "./grafana/provisioning:/etc/grafana/provisioning"
+    - "grafana-storage:/var/lib/grafana"
+
+  node-exporter:
+    image: quay.io/prometheus/node-exporter:v1.0.1
+    container_name: node-exporter
+    command:
+    - "--path.rootfs=/host"
+    pid: "host"
+    network_mode: "host"
+    ports:
+    - "9100:9100"
+    volumes:
+    - "/:/host:ro"
+
+volumes:
+  prometheus-data:
+  alertmanager-data:
+  grafana-storage:
